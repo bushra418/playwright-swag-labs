@@ -64,10 +64,10 @@ class InventoryPage:
     def open_cart(self) -> None:
         """Open the cart and wait until the browser is actually there.
 
-        Without the wait, a caller that immediately counts the rows counts the
-        products still on screen - six - and then asks for the third one after
-        the cart has replaced them with two. The failure arrives as a timeout
-        on an element, which says nothing about the navigation that caused it.
+        Without the wait, a caller that counts the rows straight away counts
+        the six products still on screen, then asks for the third one after the
+        cart has replaced them with two. The failure arrives as a timeout on an
+        element, which says nothing about the navigation that caused it.
         """
         self.cart_link.click()
         self.page.wait_for_url(re.compile(r"cart\.html"))

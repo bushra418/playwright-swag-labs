@@ -31,7 +31,7 @@ def test_adding_and_removing_keeps_the_badge_honest(signed_in):
 
 
 def test_the_cart_holds_what_was_chosen(signed_in, page):
-    """What reaches the cart is what was added - not merely the right number.
+    """What reaches the cart is what was added, not merely the right number.
 
     Counting alone would pass if the page added the wrong product, which is why
     the names are compared rather than the total.

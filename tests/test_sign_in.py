@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import LOCKED_OUT_USER, STANDARD_PASS, STANDARD_USER
+from config import LOCKED_OUT_USER, STANDARD_PASS, STANDARD_USER
 from pages.inventory_page import InventoryPage
 from pages.login_page import LoginPage
 
@@ -38,7 +38,7 @@ def test_bad_credentials_are_refused_and_explained(page, user, secret, because):
     login.sign_in(user, secret)
 
     assert "inventory" not in page.url, (
-        f"Signing in with {because} was accepted - the browser reached {page.url}"
+        f"Signing in with {because} was accepted. The browser reached {page.url}"
     )
     assert login.error_message(), (
         f"Signing in with {because} was refused, but the page gave no reason"

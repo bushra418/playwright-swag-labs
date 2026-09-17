@@ -12,7 +12,7 @@ def test_products_sort_by_price(signed_in, option, ascending):
     """Sorting by price orders the products by their value.
 
     The prices are compared as numbers, not as the text on screen. Sorted as
-    text, "$100.00" comes before "$9.99" because "1" precedes "9" - so a string
+    text, "$100.00" comes before "$9.99" because 1 comes before 9. A string
     comparison would report a correctly sorted page as broken, and the tester
     would spend an afternoon proving the application right.
     """

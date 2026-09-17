@@ -1,10 +1,4 @@
-"""Fixtures, and the evidence a failure leaves behind.
-
-Credentials come from the environment rather than the source. They are public
-demo credentials here, so nothing is at risk either way - but a suite that
-hardcodes them teaches the habit, and the habit is what matters when the same
-structure is pointed at a real application.
-"""
+"""Fixtures, and the evidence a failure leaves behind."""
 
 import os
 import re
@@ -14,9 +8,7 @@ from pathlib import Path
 import pytest
 from playwright.sync_api import sync_playwright
 
-STANDARD_USER = os.environ.get("SWAG_USER", "standard_user")
-STANDARD_PASS = os.environ.get("SWAG_PASS", "secret_sauce")
-LOCKED_OUT_USER = os.environ.get("SWAG_LOCKED_USER", "locked_out_user")
+from config import STANDARD_PASS, STANDARD_USER
 
 EVIDENCE = Path(__file__).resolve().parent / "reports" / "failures"
 
