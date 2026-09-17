@@ -18,9 +18,15 @@ class InventoryPage:
         expect(self.items.first).to_be_visible()
 
     def product_names(self) -> list:
+        """Every product name, read in one call.
+
+        Not a loop over `count()`. That call does not wait, so a loop built on
+        it can count the rows of one page and then index into another if the
+        browser is navigating underneath it.
+        """
         return [
-            (self.items.nth(i).locator(".inventory_item_name").inner_text() or "").strip()
-            for i in range(self.items.count())
+            text.strip()
+            for text in self.items.locator(".inventory_item_name").all_inner_texts()
         ]
 
     def prices(self) -> list:
@@ -30,8 +36,7 @@ class InventoryPage:
         a string comparison would call a correctly sorted page broken.
         """
         values = []
-        for i in range(self.items.count()):
-            text = self.items.nth(i).locator(".inventory_item_price").inner_text() or ""
+        for text in self.items.locator(".inventory_item_price").all_inner_texts():
             found = re.search(r"[\d.]+", text)
             if found:
                 values.append(float(found.group()))

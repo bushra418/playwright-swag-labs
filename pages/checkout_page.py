@@ -18,9 +18,18 @@ class CheckoutPage:
         self.error = page.locator("[data-test='error']")
 
     def item_names(self) -> list:
+        """The products in the cart.
+
+        Read in one call rather than counting the rows and then asking for each
+        one by index. `count()` does not wait for anything, so a loop built on
+        it can take its count from the page it is leaving and then index into
+        the page it has arrived at. That failed here exactly once, in CI, asking
+        for the sixth row of a cart holding two.
+        """
+        expect(self.cart_items.first).to_be_visible()
         return [
-            (self.cart_items.nth(i).locator(".inventory_item_name").inner_text() or "").strip()
-            for i in range(self.cart_items.count())
+            text.strip()
+            for text in self.cart_items.locator(".inventory_item_name").all_inner_texts()
         ]
 
     def start_checkout(self) -> None:
