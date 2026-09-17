@@ -6,9 +6,17 @@ from playwright.sync_api import Page, expect
 class CheckoutPage:
     """Cart, the details form, and the order summary."""
 
+    # `.cart_item` rather than `[data-test='inventory-item']`, which the product
+    # list uses as well. A locator that matches on both pages cannot tell which
+    # one it is looking at: read a moment early and it finds six products on the
+    # page being left and reports them as the cart's contents, with nothing
+    # about it looking wrong. `.cart_item` exists only here, so an early read
+    # finds nothing and waits instead of lying.
+    ITEM = ".cart_item"
+
     def __init__(self, page: Page):
         self.page = page
-        self.cart_items = page.locator("[data-test='inventory-item']")
+        self.cart_items = page.locator(self.ITEM)
         self.checkout = page.get_by_role("button", name="Checkout")
         self.first_name = page.get_by_placeholder("First Name")
         self.last_name = page.get_by_placeholder("Last Name")

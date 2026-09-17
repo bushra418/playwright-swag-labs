@@ -66,30 +66,46 @@ These are public demo credentials so nothing is at risk either way. I still keep
 them out of the source, because hardcoding them teaches a habit that matters when
 the same structure points at a real application.
 
-## A bug in this suite, and why my first fix was wrong
+## A bug in this suite, and the two fixes that were wrong
 
-The first run failed with a timeout on an element, which looked like a bad
-locator. It was not. The code was counting rows while the browser was moving from
-the product list to the cart. Six products were on screen when the count was
-taken, and two were left by the time the third one was asked for.
+One test kept failing in CI while passing on my machine. It took three attempts,
+and the first two were wrong in a way worth writing down.
 
-So I made `open_cart()` wait for the cart URL before returning, and the suite went
-green on my machine. I thought that was the fix.
+It first failed with a timeout on an element. That looked like a bad locator, but
+the code was counting cart rows while the browser was still moving from the
+product list. So I made `open_cart()` wait for the cart URL, the suite went green
+locally, and I thought that was that.
 
-CI disagreed. The same test failed on the Linux runner, this time asking for the
-sixth row of a cart holding two. Waiting for the URL was not enough, because
-`count()` does not wait for anything at all. It answers immediately, from whatever
-the page happens to be at that instant, and on a slower machine that instant fell
-on the wrong side of the navigation.
+CI disagreed. Second attempt: stop counting rows and then indexing into them, and
+read the names in one call instead, so a navigation has no gap to slip through.
+Green locally again. CI failed again, and this time the assertion was much more
+useful than a timeout had been:
 
-The real fix was to stop counting and indexing altogether. Reading the names in a
-single `all_inner_texts()` call cannot straddle two pages, because there is no
-gap between the count and the lookup for a navigation to happen in.
+```
+Added ['Sauce Labs Backpack', 'Sauce Labs Bolt T-Shirt']
+but the cart holds ['Sauce Labs Backpack', 'Sauce Labs Bike Light',
+                    'Sauce Labs Bolt T-Shirt', 'Sauce Labs Fleece Jacket',
+                    'Sauce Labs Onesie', 'Test.allTheThings() T-Shirt (Red)']
+```
 
-Two things I took from it. A test passing locally is not evidence that it passes,
-which is most of the argument for running it somewhere else as well. And a green
-suite after a fix is not proof the fix was right, only that it was enough that
-time.
+Six products. It had read the product list and called it the cart.
+
+The real cause was the locator. I had used `[data-test='inventory-item']` for cart
+rows, and the product list uses the same attribute. A locator that matches on both
+pages cannot tell which one it is looking at. Worse, `wait_for_url` returns as
+soon as the address changes, which is before the new page replaces the old one. I
+checked, and at that moment the browser reports `cart.html` while still holding
+six product rows and no cart rows at all.
+
+So the code was reading a page that looked entirely valid and was simply the wrong
+one. The fix was `.cart_item`, which exists only on the cart. An early read now
+finds nothing and waits, instead of finding six things and lying.
+
+What I took from it. A locator should be specific to the page it belongs to,
+because ambiguity turns a timing problem into wrong data, and wrong data does not
+announce itself. Passing locally is not evidence of passing. And a green suite
+after a fix only means the fix was enough that time, which is not the same as
+being right.
 
 ## Layout
 
